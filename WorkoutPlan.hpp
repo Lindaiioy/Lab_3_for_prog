@@ -1,28 +1,47 @@
-#ifndef WORKOUTPLAN_HPP
-#define WORKOUTPLAN_HPP
+#pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
+#include "UserProfile.hpp"
+#include "Workout.hpp"
+#include "ExerciseCategory.hpp"
 
-class UserProfile;
-class Workout;
-class ExerciseCategory;
-
-class WorkoutPlan {
+class PlanBase {
+protected:
+    std::string planName;
 public:
-    std::string id;
-    std::string periodStart;
-    std::string periodEnd;
-    std::vector<Workout> workouts;
-    std::string templateType;
-    UserProfile* userProfile;
+    PlanBase(const std::string& name = "General");
+    PlanBase(const PlanBase& other);
+    virtual ~PlanBase();
+    std::string getPlanName() const;
+};
+
+class WorkoutPlan : public PlanBase {
+private:
+    std::unique_ptr<UserProfile> userProfile;
+    std::vector<std::shared_ptr<Workout>> upcomingWorkouts;
+
+public:
+    WorkoutPlan();
+    WorkoutPlan(const std::string& name);
+    
+    WorkoutPlan(const WorkoutPlan& other);
+    WorkoutPlan& operator=(const WorkoutPlan& other);
+    
+    WorkoutPlan(WorkoutPlan&& other) noexcept;
+    WorkoutPlan& operator=(WorkoutPlan&& other) noexcept;
+
+    ~WorkoutPlan();
 
     void generatePersonalizedParams(const ExerciseCategory& category);
     void adaptOnFeedback(const std::string& feedback);
-    std::vector<Workout> getUpcoming(int count);
+    std::vector<Workout> getUpcoming(int count) const;
 
-    WorkoutPlan();
-    ~WorkoutPlan();
+    bool operator==(const WorkoutPlan& other) const;
+    bool operator!=(const WorkoutPlan& other) const;
+    WorkoutPlan operator+(const WorkoutPlan& other) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const WorkoutPlan& plan);
 };
-
-#endif

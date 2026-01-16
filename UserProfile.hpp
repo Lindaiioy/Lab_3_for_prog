@@ -1,28 +1,47 @@
-#ifndef USERPROFILE_HPP
-#define USERPROFILE_HPP
+#pragma once
 
+#include <memory>
 #include <string>
-#include <set>
+#include <iostream>
+#include "Exercise.hpp"
 
-class Exercise;
-
-class UserProfile {
+class ProfileBase {
+protected:
+    std::string profileType;
 public:
-    std::string id;
-    std::string name;
+    ProfileBase(const std::string& type = "General");
+    ProfileBase(const ProfileBase& other);
+    virtual ~ProfileBase();
+    std::string getType() const;
+};
+
+class UserProfile : public ProfileBase {
+private:
     int age;
     int heightCM;
     double weightKG;
-    std::string goal;
-    std::string level;
-    std::set<std::string> equipment;
     bool notificationsEnabled;
+    std::unique_ptr<std::string> userName;
+    std::shared_ptr<Exercise> favoriteExercise;
 
-    bool canPerform(const Exercise& ex);
+public:
+    UserProfile();
+    UserProfile(const std::string& name, int ageVal, int height, double weight, bool notify);
+    
+    UserProfile(const UserProfile& other);
+    UserProfile& operator=(const UserProfile& other);
+    
+    UserProfile(UserProfile&& other) noexcept;
+    UserProfile& operator=(UserProfile&& other) noexcept;
+
+    ~UserProfile();
+
+    bool canPerform(const Exercise& ex) const;
     double updateNewWeight(double weight);
 
-    UserProfile();
-    ~UserProfile();
-};
+    bool operator==(const UserProfile& other) const;
+    bool operator!=(const UserProfile& other) const;
+    UserProfile operator+(const UserProfile& other) const;
 
-#endif
+    friend std::ostream& operator<<(std::ostream& os, const UserProfile& profile);
+};
