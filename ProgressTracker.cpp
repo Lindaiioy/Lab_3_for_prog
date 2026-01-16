@@ -1,17 +1,45 @@
-#include "ProgressTracker.hpp"
+#pragma once
 
-ProgressTracker::ProgressTracker() : streak(0), bestStreak(0) {}
+#include <memory>
+#include <string>
+#include <iostream>
 
-ProgressTracker::~ProgressTracker() {}
+class TrackerBase {
+protected:
+    std::string trackerType;
+public:
+    TrackerBase(const std::string& type = "General");
+    TrackerBase(const TrackerBase& other);
+    virtual ~TrackerBase();
+    std::string getType() const;
+};
 
-double ProgressTracker::getAchievementPercent(const std::string& dateInterval) {
-    return 0.0;
-}
+class ProgressTracker : public TrackerBase {
+private:
+    int streak;
+    int bestStreak;
+    std::unique_ptr<double> achievementRate;
+    std::shared_ptr<std::string> lastUpdate;
 
-double ProgressTracker::updateFromWorkout(const std::string& result) {
-    return 0.0;
-}
+public:
+    ProgressTracker();
+    ProgressTracker(const std::string& type);
+    
+    ProgressTracker(const ProgressTracker& other);
+    ProgressTracker& operator=(const ProgressTracker& other);
+    
+    ProgressTracker(ProgressTracker&& other) noexcept;
+    ProgressTracker& operator=(ProgressTracker&& other) noexcept;
 
-double ProgressTracker::estimateIMAX(const std::string& exerciseId) {
-    return 0.0;
-}
+    ~ProgressTracker();
+
+    double getAchievementPercent(const std::string& dateInterval) const;
+    double updateFromWorkout(const std::string& result);
+    double estimateIMAX(const std::string& exerciseId) const;
+
+    bool operator==(const ProgressTracker& other) const;
+    bool operator!=(const ProgressTracker& other) const;
+    ProgressTracker operator+(const ProgressTracker& other) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const ProgressTracker& tracker);
+};

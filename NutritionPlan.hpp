@@ -1,24 +1,44 @@
-#ifndef NUTRITIONPLAN_HPP
-#define NUTRITIONPLAN_HPP
+#pragma once
 
+#include <memory>
 #include <string>
-#include <vector>
+#include <map>
+#include <iostream>
+#include "Recipe.hpp"
 
-class MealItem;
-class Recipe;
-
-class NutritionPlan {
+class NutritionBase {
+protected:
+    std::string planType;
 public:
-    std::string id;
-    std::string date;
-    std::vector<std::string> meals;
-    std::string notes;
+    NutritionBase(const std::string& type = "General");
+    NutritionBase(const NutritionBase& other);
+    virtual ~NutritionBase();
+    std::string getType() const;
+};
+
+class NutritionPlan : public NutritionBase {
+private:
+    std::map<std::string, std::shared_ptr<Recipe>> meals;
+    std::unique_ptr<double> weightTarget;
+
+public:
+    NutritionPlan();
+    NutritionPlan(const std::string& type);
+    
+    NutritionPlan(const NutritionPlan& other);
+    NutritionPlan& operator=(const NutritionPlan& other);
+    
+    NutritionPlan(NutritionPlan&& other) noexcept;
+    NutritionPlan& operator=(NutritionPlan&& other) noexcept;
+
+    ~NutritionPlan();
 
     double adjustWeightChangeTargetKg(double kg);
     void replaceMeal(const std::string& mealType, const Recipe& newRecipe);
 
-    NutritionPlan();
-    ~NutritionPlan();
-};
+    bool operator==(const NutritionPlan& other) const;
+    bool operator!=(const NutritionPlan& other) const;
+    NutritionPlan operator+(const NutritionPlan& other) const;
 
-#endif
+    friend std::ostream& operator<<(std::ostream& os, const NutritionPlan& plan);
+};
